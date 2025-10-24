@@ -1,47 +1,39 @@
-from flask import Flask, request, jsonify, send_from_directory
-import edge_tts
-import asyncio
+from flask import Flask, request, render_template, send_file, jsonify
+from gtts import gTTS
+from io import BytesIO
 import os
-import uuid
 
 app = Flask(__name__)
 
-AUDIO_DIR = os.path.join(os.getcwd(), "audio_files")
-os.makedirs(AUDIO_DIR, exist_ok=True)
-
 @app.route("/")
 def index():
-    return send_from_directory("frontend", "index.html")
-
-@app.route("/<path:path>")
-def static_files(path):
-    return send_from_directory("frontend", path)
+    return render_template("index.html")
 
 @app.route("/speak", methods=["POST"])
 def speak():
-    data = request.get_json()
-    text = data.get("text", "")
-    voice = data.get("voice", "fr-FR-DeniseNeural")
-
-    if not text.strip():
-        return jsonify({"error": "Aucun texte reçu"}), 400
-
-    filename = f"{uuid.uuid4()}.mp3"
-    filepath = os.path.join(AUDIO_DIR, filename)
-
     try:
-        asyncio.run(generate_audio(text, voice, filepath))
-        return jsonify({"audio": filename})
+        data = request.get_json()
+        text = data.get("text", "").strip()
+
+        if not text:
+            return jsonify({"error": "No text provided"}), 400
+
+        tts = gTTS(text=text, lang="fr")
+
+        audio_data = BytesIO()
+        tts.write_to_fp(audio_data)
+        audio_data.seek(0)
+
+        return send_file(
+            audio_data,
+            mimetype="audio/mp3",
+            as_attachment=False
+        )
+    
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-async def generate_audio(text, voice, filepath):
-    communicate = edge_tts.Communicate(text, voice)
-    await communicate.save(filepath)
-
-@app.route("/audio/<path:filename>")
-def get_audio(filename):
-    return send_from_directory(AUDIO_DIR, filename)
+        print("Error:", e)
+        return jsonify({"error": "Audio generation failed"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
