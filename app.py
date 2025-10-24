@@ -1,58 +1,42 @@
-from flask import Flask, request, jsonify, send_from_directory
-import edge_tts
-import asyncio
+from flask import Flask, request, send_file, jsonify, render_template
+from gtts import gTTS
 import os
 import uuid
-from gtts import gTTS
 
+app = Flask(__name__, static_folder="frontend", template_folder="frontend")
+
+# ✅ Route principale : interface web
+@app.route('/')
+def home():
+    return app.send_static_file('index.html')
+
+# ✅ Route de santé pour éviter la mise en veille Render
 @app.route('/health')
 def health():
     return "OK", 200
 
-
-print("🔊 Préparation de gTTS…")
-gTTS("Test de démarrage").save("startup.mp3")
-print("✅ gTTS prêt !")
-
-
-app = Flask(__name__)
-
-AUDIO_DIR = os.path.join(os.getcwd(), "audio_files")
-os.makedirs(AUDIO_DIR, exist_ok=True)
-
-@app.route("/")
-def index():
-    return send_from_directory("frontend", "index.html")
-
-@app.route("/<path:path>")
-def static_files(path):
-    return send_from_directory("frontend", path)
-
-@app.route("/speak", methods=["POST"])
+# ✅ Route TTS : génération audio
+@app.route('/speak', methods=['POST'])
 def speak():
-    data = request.get_json()
-    text = data.get("text", "")
-    voice = data.get("voice", "fr-FR-DeniseNeural")
+    data = request.json or {}
+    text = data.get("text", "").strip()
 
-    if not text.strip():
-        return jsonify({"error": "Aucun texte reçu"}), 400
-
-    filename = f"{uuid.uuid4()}.mp3"
-    filepath = os.path.join(AUDIO_DIR, filename)
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
 
     try:
-        asyncio.run(generate_audio(text, voice, filepath))
-        return jsonify({"audio": filename})
+        # Render n'autorise l'écriture que dans /tmp
+        filename = f"{uuid.uuid4()}.mp3"
+        filepath = os.path.join("/tmp", filename)
+
+        # gTTS pour générer l’audio
+        tts = gTTS(text=text, lang="fr")
+        tts.save(filepath)
+
+        return send_file(filepath, mimetype="audio/mpeg")
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-async def generate_audio(text, voice, filepath):
-    communicate = edge_tts.Communicate(text, voice)
-    await communicate.save(filepath)
 
-@app.route("/audio/<path:filename>")
-def get_audio(filename):
-    return send_from_directory(AUDIO_DIR, filename)
-
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
