@@ -25,10 +25,22 @@ async function speak() {
         const blob = await response.blob();
         const audioURL = URL.createObjectURL(blob);
         const audio = new Audio(audioURL);
-        audio.play();
 
-        status.textContent = "✅ Lecture terminée !";
+        audio.oncanplaythrough = () => {
+            audio.play().then(() => {
+                status.textContent = "✅ Lecture terminée !";
+            }).catch(err => {
+                status.textContent = "🔇 Lecture bloquée par le navigateur. Cliquez pour autoriser le son.";
+                console.log(err);
+            });
+        };
+
+        audio.onerror = () => {
+            status.textContent = "❌ Erreur de lecture audio.";
+        };
+
     } catch (e) {
         status.textContent = "❌ Erreur de connexion au serveur.";
+        console.error(e);
     }
 }
