@@ -3,6 +3,12 @@ import edge_tts
 import asyncio
 import os
 import uuid
+from gtts import gTTS
+
+print("🔊 Préparation de gTTS…")
+gTTS("Test de démarrage").save("startup.mp3")
+print("✅ gTTS prêt !")
+
 
 app = Flask(__name__)
 
