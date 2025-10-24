@@ -1,48 +1,34 @@
-const speakBtn = document.getElementById("speakBtn");
-const stopBtn = document.getElementById("stopBtn");
-const downloadBtn = document.getElementById("downloadBtn");
-const textInput = document.getElementById("textInput");
-const languageSelect = document.getElementById("languageSelect");
-const voiceSelect = document.getElementById("voiceSelect");
-const audioPlayer = document.getElementById("audioPlayer");
+async function speak() {
+    const text = document.getElementById("text").value.trim();
+    const status = document.getElementById("status");
 
-let currentAudio = "";
+    if (!text) {
+        alert("Veuillez saisir un texte !");
+        return;
+    }
 
-speakBtn.addEventListener("click", async () => {
-  const text = textInput.value.trim();
-  const voice = voiceSelect.value;
+    status.textContent = "⏳ Génération de la voix...";
 
-  if (!text) {
-    alert("Veuillez écrire un texte à lire !");
-    return;
-  }
+    try {
+        const response = await fetch("/speak", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text })
+        });
 
-  const response = await fetch("/speak", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, voice })
-  });
+        if (!response.ok) {
+            const err = await response.json();
+            status.textContent = "❌ Erreur : " + (err.error || "inconnue");
+            return;
+        }
 
-  const data = await response.json();
+        const blob = await response.blob();
+        const audioURL = URL.createObjectURL(blob);
+        const audio = new Audio(audioURL);
+        audio.play();
 
-  if (data.audio) {
-    currentAudio = data.audio;
-    audioPlayer.src = `/audio/${data.audio}`;
-    audioPlayer.play();
-  } else {
-    alert("Erreur : " + data.error);
-  }
-});
-
-stopBtn.addEventListener("click", () => {
-  audioPlayer.pause();
-  audioPlayer.currentTime = 0;
-});
-
-downloadBtn.addEventListener("click", () => {
-  if (currentAudio) {
-    window.open(`/audio/${currentAudio}`, "_blank");
-  } else {
-    alert("Aucun audio à télécharger !");
-  }
-});
+        status.textContent = "✅ Lecture terminée !";
+    } catch (e) {
+        status.textContent = "❌ Erreur de connexion au serveur.";
+    }
+}
