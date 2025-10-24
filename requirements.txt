@@ -2,8 +2,8 @@ fastapi
 uvicorn
 edge-tts
 pywebview
-flask
-gtts
-Flask
-gunicorn
+Flask==3.0.3
+gTTS==2.5.3
+gunicorn==21.2.0
+
 
