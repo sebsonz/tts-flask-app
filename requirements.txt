@@ -4,3 +4,6 @@ edge-tts
 pywebview
 flask
 gtts
+Flask
+gunicorn
+
