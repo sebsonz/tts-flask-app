@@ -5,6 +5,11 @@ import os
 import uuid
 from gtts import gTTS
 
+@app.route('/health')
+def health():
+    return "OK", 200
+
+
 print("🔊 Préparation de gTTS…")
 gTTS("Test de démarrage").save("startup.mp3")
 print("✅ gTTS prêt !")
