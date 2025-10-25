@@ -1,3 +1,7 @@
-Flask
-gTTS
+fastapi
+uvicorn
+edge-tts
+pywebview
+flask
+gtts
 gunicorn
