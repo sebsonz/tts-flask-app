@@ -3,6 +3,16 @@ from gtts import gTTS
 import os
 import uuid
 
+import os
+from flask import send_from_directory
+
+AUDIO_DIR = os.path.join(os.getcwd(), "audio_files")
+
+@app.route('/audio/<filename>')
+def serve_audio(filename):
+    return send_from_directory(AUDIO_DIR, filename, mimetype="audio/mpeg")
+
+
 app = Flask(__name__, static_folder="frontend", template_folder="frontend")
 
 # Dossier pour audio dans STCATIC afin d'être servi par Render
