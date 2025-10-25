@@ -1,59 +1,42 @@
 from flask import Flask, request, jsonify, send_from_directory
-from gtts import gTTS
 import os
 import uuid
 
-import os
-from flask import send_from_directory
+app = Flask(__name__)
 
-AUDIO_DIR = os.path.join(os.getcwd(), "audio_files")
-
-@app.route('/audio/<filename>')
-def serve_audio(filename):
-    return send_from_directory(AUDIO_DIR, filename, mimetype="audio/mpeg")
-
-
-app = Flask(__name__, static_folder="frontend", template_folder="frontend")
-
-# ➜ AJOUTE CETTE LIGNE JUSTE ICI ✅
-os.makedirs("audio_files", exist_ok=True)
-
-# Dossier pour audio dans STCATIC afin d'être servi par Render
-AUDIO_FOLDER = os.path.join(app.static_folder, "audio")
+# ✅ Assure que le dossier audio existe
+AUDIO_FOLDER = "audio_files"
 os.makedirs(AUDIO_FOLDER, exist_ok=True)
 
 
 @app.route("/")
-def index():
-    return send_from_directory(app.static_folder, "index.html")
+def home():
+    return "Application TTS prête 🚀"
 
 
-@app.route("/speak", methods=["POST"])
-def speak():
+# ✅ Route pour générer l’audio
+@app.route("/api/tts", methods=["POST"])
+def text_to_speech():
     data = request.get_json()
-    text = data.get("text")
+    text = data.get("text", "")
 
-    if not text:
-        return jsonify({"error": "No text"}), 400
+    if not text.strip():
+        return jsonify({"error": "Text is empty"}), 400
 
     filename = f"{uuid.uuid4()}.mp3"
     filepath = os.path.join(AUDIO_FOLDER, filename)
 
-    try:
-        tts = gTTS(text=text, lang="fr")
-        tts.save(filepath)
+    # ✅ Exemple : écriture d’un faux son temporaire (à remplacer par vrai TTS)
+    with open(filepath, "wb") as f:
+        f.write(b"FAKE_MP3_DATA")
 
-        # ✅ URL accessible publiquement
-        audio_url = f"/static/audio/{filename}"
-        return jsonify({"audioUrl": audio_url})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    return jsonify({"url": f"/audio/{filename}"})
 
 
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    return send_from_directory(app.static_folder, filename)
+# ✅ Route pour servir les fichiers audio au navigateur
+@app.route("/audio/<filename>")
+def serve_audio(filename):
+    return send_from_directory(AUDIO_FOLDER, filename)
 
 
 if __name__ == "__main__":
