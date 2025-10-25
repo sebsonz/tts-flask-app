@@ -1,41 +1,82 @@
-body {
-    background: #121212;
-    font-family: Arial, sans-serif;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+:root{
+  --bg: #0f1724;
+  --card: #0b1220;
+  --accent: #3b82f6;
+  --muted: #94a3b8;
+  --white: #e6eef8;
 }
 
-.container {
-    width: 420px;
-    background: #1e1e1e;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg,#071028 0%, #071a2b 100%);
+  color:var(--white);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
 }
 
-textarea {
-    width: 100%;
-    height: 150px;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 10px;
+/* Card */
+.card{
+  width:100%;
+  max-width:980px;
+  border-radius:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+  padding:20px;
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    background: #0066ff;
-    border: none;
-    color: #fff;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
+/* Header */
+.header{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.header h1{margin:0;font-size:1.4rem}
+.sub{color:var(--muted);margin:0;font-size:0.9rem}
+
+/* Controls */
+.controls{display:block;padding:12px 0}
+label{display:block;margin-bottom:6px;color:var(--muted)}
+textarea{
+  width:100%;
+  min-height:140px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.04);
+  color:var(--white);
+  padding:12px;
+  border-radius:8px;
+  font-size:15px;
+  resize:vertical;
 }
 
-audio {
-    width: 100%;
-    margin-top: 10px;
-}
+/* row */
+.row{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+.field{flex:1;min-width:150px}
+select{width:100%;padding:8px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.04);color:var(--white)}
+
+.buttons{display:flex;gap:10px;margin-top:12px;align-items:center}
+button{padding:10px 14px;border-radius:10px;border:none;background:rgba(255,255,255,0.04);color:var(--white);cursor:pointer;font-weight:600}
+button.primary{background:linear-gradient(90deg,var(--accent),#2563eb);box-shadow:0 6px 18px rgba(37,99,235,0.15)}
+button.small{padding:6px 8px;border-radius:8px}
+
+/* status */
+.status{margin-top:10px;color:var(--muted)}
+
+/* audio */
+audio{width:100%;margin-top:12px;border-radius:8px;background:rgba(0,0,0,0.2);padding:8px}
+
+/* history */
+.history{margin-top:18px;border-top:1px solid rgba(255,255,255,0.02);padding-top:12px}
+.history h2{margin:0 0 8px 0;font-size:1rem}
+#historyList{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)}
+.h-left{max-width:78%}
+.h-text{font-size:0.95rem}
+.h-meta{font-size:0.8rem;color:var(--muted);margin-top:6px}
+.h-actions{display:flex;gap:8px;align-items:center}
+
+/* empty */
+.empty{color:var(--muted);padding:8px}
+
+/* footer */
+.footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
