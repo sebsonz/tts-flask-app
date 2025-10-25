@@ -1,49 +1,44 @@
-from flask import Flask, request, render_template, send_file, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from gtts import gTTS
-from io import BytesIO
 import os
+import uuid
+
+app = Flask(__name__, static_folder="frontend", template_folder="frontend")
+
+AUDIO_FOLDER = "static/audio"
+os.makedirs(AUDIO_FOLDER, exist_ok=True)
 
 
-app = Flask(__name__)
-
-AUDIO_DIR = os.path.join(os.getcwd(), "audio_files")
-os.makedirs(AUDIO_DIR, exist_ok=True)
-
-@app.route("/")
+@app.route('/')
 def index():
     return send_from_directory("frontend", "index.html")
 
-@app.route("/<path:path>")
-def static_files(path):
-    return send_from_directory("frontend", path)
 
-@app.route("/speak", methods=["POST"])
+@app.route('/speak', methods=['POST'])
 def speak():
     data = request.get_json()
-    text = data.get("text", "")
-    voice = data.get("voice", "fr-FR-DeniseNeural")
+    text = data.get("text")
 
-    if not text.strip():
-        return jsonify({"error": "Aucun texte reçu"}), 400
-
-    filename = f"{uuid.uuid4()}.mp3"
-    filepath = os.path.join(AUDIO_DIR, filename)
+    if not text:
+        return jsonify({"error": "Texte manquant"}), 400
 
     try:
-        asyncio.run(generate_audio(text, voice, filepath))
-        return jsonify({"audio": filename})
+        filename = f"{uuid.uuid4()}.mp3"
+        filepath = os.path.join(AUDIO_FOLDER, filename)
+
+        tts = gTTS(text=text, lang="fr")
+        tts.save(filepath)
+
+        return jsonify({"audioUrl": f"/static/audio/{filename}"})
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-async def generate_audio(text, voice, filepath):
-    communicate = edge_tts.Communicate(text, voice)
-    await communicate.save(filepath)
 
-@app.route("/audio/<path:filename>")
-def get_audio(filename):
-    return send_from_directory(AUDIO_DIR, filename)
+@app.route('/<path:filename>')
+def frontend_files(filename):
+    return send_from_directory("frontend", filename)
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=5000)
