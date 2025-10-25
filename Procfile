@@ -1,7 +1,6 @@
 web: gunicorn app:app
-git add Procfile
-git commit -m "Add Procfile for Render deployment"
+git add .
+git commit -m "Version finale gTTS"
 git push
-
 
 
