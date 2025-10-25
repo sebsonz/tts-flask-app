@@ -15,6 +15,9 @@ def serve_audio(filename):
 
 app = Flask(__name__, static_folder="frontend", template_folder="frontend")
 
+# ➜ AJOUTE CETTE LIGNE JUSTE ICI ✅
+os.makedirs("audio_files", exist_ok=True)
+
 # Dossier pour audio dans STCATIC afin d'être servi par Render
 AUDIO_FOLDER = os.path.join(app.static_folder, "audio")
 os.makedirs(AUDIO_FOLDER, exist_ok=True)
