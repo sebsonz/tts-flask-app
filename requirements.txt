@@ -1,6 +1,3 @@
-fastapi
-uvicorn
-pywebview
-flask
-gtts
-gunicorn
+Flask==3.0.3
+gTTS==2.5.1
+gunicorn==22.1.0
