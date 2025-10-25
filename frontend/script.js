@@ -15,9 +15,14 @@ document.getElementById("speakBtn").addEventListener("click", async () => {
 
     if (data.audioUrl) {
         const audio = document.getElementById("audioPlayer");
-        audio.src = data.audioUrl;
+        audio.src = `/audio/${data.filename}`;
         audio.play();
     } else {
         alert("Erreur : " + (data.error || "Audio non généré"));
     }
 });
+
+
+
+
+
