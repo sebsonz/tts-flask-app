@@ -3,36 +3,46 @@ from gtts import gTTS
 from io import BytesIO
 import os
 
+
 app = Flask(__name__)
+
+AUDIO_DIR = os.path.join(os.getcwd(), "audio_files")
+os.makedirs(AUDIO_DIR, exist_ok=True)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return send_from_directory("frontend", "index.html")
+
+@app.route("/<path:path>")
+def static_files(path):
+    return send_from_directory("frontend", path)
 
 @app.route("/speak", methods=["POST"])
 def speak():
+    data = request.get_json()
+    text = data.get("text", "")
+    voice = data.get("voice", "fr-FR-DeniseNeural")
+
+    if not text.strip():
+        return jsonify({"error": "Aucun texte reçu"}), 400
+
+    filename = f"{uuid.uuid4()}.mp3"
+    filepath = os.path.join(AUDIO_DIR, filename)
+
     try:
-        data = request.get_json()
-        text = data.get("text", "").strip()
-
-        if not text:
-            return jsonify({"error": "No text provided"}), 400
-
-        tts = gTTS(text=text, lang="fr")
-
-        audio_data = BytesIO()
-        tts.write_to_fp(audio_data)
-        audio_data.seek(0)
-
-        return send_file(
-            audio_data,
-            mimetype="audio/mp3",
-            as_attachment=False
-        )
-    
+        asyncio.run(generate_audio(text, voice, filepath))
+        return jsonify({"audio": filename})
     except Exception as e:
-        print("Error:", e)
-        return jsonify({"error": "Audio generation failed"}), 500
+        return jsonify({"error": str(e)}), 500
+
+async def generate_audio(text, voice, filepath):
+    communicate = edge_tts.Communicate(text, voice)
+    await communicate.save(filepath)
+
+@app.route("/audio/<path:filename>")
+def get_audio(filename):
+    return send_from_directory(AUDIO_DIR, filename)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
