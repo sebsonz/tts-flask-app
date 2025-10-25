@@ -1,6 +1,5 @@
 fastapi
 uvicorn
-edge-tts
 pywebview
 flask
 gtts
