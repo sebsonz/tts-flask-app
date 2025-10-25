@@ -1,20 +1,42 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>TTS Audio</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <title>TTS Edge - Synthèse vocale</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="container">
+    <h1>🗣️ Générateur Vocal</h1>
 
-<div class="container">
-    <h2>Convertir du texte en voix 🎤</h2>
-    <textarea id="text-input" placeholder="Tapez votre texte ici..."></textarea>
-    <button onclick="convertText()">🔊 Générer Audio</button>
-    <p id="status"></p>
-    <audio id="audio-player" controls></audio>
-</div>
+    <textarea id="textInput" placeholder="Écris ton texte ici..."></textarea>
 
-<script src="/static/script.js"></script>
+    <div class="options">
+      <label>Langue :</label>
+      <select id="languageSelect">
+        <option value="fr-FR">Français</option>
+        <option value="en-US">Anglais</option>
+        <option value="es-ES">Espagnol</option>
+      </select>
+
+      <label>Voix :</label>
+      <select id="voiceSelect">
+        <option value="fr-FR-DeniseNeural">Femme (FR)</option>
+        <option value="fr-FR-HenriNeural">Homme (FR)</option>
+        <option value="en-US-JennyNeural">Femme (EN)</option>
+        <option value="en-US-GuyNeural">Homme (EN)</option>
+      </select>
+    </div>
+
+    <div class="buttons">
+      <button id="speakBtn">▶️ Lire</button>
+      <button id="stopBtn">⏹️ Arrêter</button>
+      <button id="downloadBtn">💾 Télécharger</button>
+    </div>
+
+    <audio id="audioPlayer" controls></audio>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
